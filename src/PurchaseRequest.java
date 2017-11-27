@@ -20,6 +20,17 @@ public class PurchaseRequest implements DAO<PurchaseRequest> {
     private String ReasonForRejection;
 	private String DateNeeded;
     private Boolean IsActive;
+    
+	public PurchaseRequest() {}
+	
+	public PurchaseRequest(int userid, int statusid) {
+		this.UserID=userid;
+		this.StatusID=statusid;
+		this.Description = Console.getString("what do you need?: ");
+		this.Justification = Console.getString("why do you need this thing?: ");
+		this.DeliveryMode = Console.getString("delivery mode? i guess?: ");
+		this.DateNeeded = Console.getString("when do you need it by?: ");
+	}
 
     public static PurchaseRequest getSpecificPurchaseRequest(int prID) {
 		PurchaseRequest thisRequest = new PurchaseRequest();
@@ -43,15 +54,6 @@ public class PurchaseRequest implements DAO<PurchaseRequest> {
 		}
 		return thisRequest;
     }
-    
-	public PurchaseRequest(int userid, int statusid) {
-		this.UserID=userid;
-		this.StatusID=statusid;
-		this.Description = Console.getString("what do you need?: ");
-		this.Justification = Console.getString("why do you need this thing?: ");
-		this.DeliveryMode = Console.getString("delivery mode? i guess?: ");
-		this.DateNeeded = Console.getString("when do you need it by?: ");
-	}
 
 	public static List<PurchaseRequest> getUserRequests(int userID) {
 		List <PurchaseRequest> allRequests = new ArrayList<>();
@@ -99,9 +101,7 @@ public class PurchaseRequest implements DAO<PurchaseRequest> {
 		}
 		return allRequests;
 	}
-	
-	public PurchaseRequest() {}
-	
+		
 	public int getId() {
 		return id;
 	}
@@ -182,8 +182,9 @@ public class PurchaseRequest implements DAO<PurchaseRequest> {
 	@Override
 	public boolean add(PurchaseRequest t) {
 //		untested code
+		String newPR = "INSERT INTO PurchaseRequest(UserID,StatusID,Description,Justification,DeliveryMode,SubmittedDate,DateNeeded) VALUES(?,?,?,?,?,?,?)";
 		try (Connection con = Connect.connect();
-                PreparedStatement insertStatement = con.prepareStatement("INSERT INTO PurchaseRequest(UserID,StatusID,Description,Justification,DeliveryMode,SubmittedDate,DateNeeded) VALUES(?,?,?,?,?,?,?)")) {
+                PreparedStatement insertStatement = con.prepareStatement(newPR, Statement.RETURN_GENERATED_KEYS)) {
 					insertStatement.setInt(1,t.getUserID());
 					insertStatement.setInt(2,t.getStatusID());
 					insertStatement.setString(3, t.Description);
@@ -192,6 +193,9 @@ public class PurchaseRequest implements DAO<PurchaseRequest> {
 					insertStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 					insertStatement.setDate(7, Date.valueOf(LocalDate.parse(this.getDateNeeded())));
 					insertStatement.executeUpdate();
+					ResultSet rs = insertStatement.getGeneratedKeys();
+					rs.next();
+					id = rs.getInt(1);
 					return true;
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());

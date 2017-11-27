@@ -12,13 +12,13 @@ public class DatabaseConnectedApp {
 		String login = Console.getString("Log in or sign up? (l/s): ");
 		if (login.equals("l")) {
 			ourUser = attemptLogin(allUsers);
-			System.out.println(ourUser.getDateUpdated());
+//			System.out.println(ourUser.getDateUpdated());
 		} else {
 			ourUser = new User();
 			ourUser.createNew();
 			allUsers.add(ourUser);
 			ourUser.add(ourUser);
-			System.out.println(ourUser.getId());
+//			System.out.println(ourUser.getId());
 		}
 		
 		Vendor myVendor = new Vendor();
